@@ -35,17 +35,18 @@ graph TD
 
 ### Running the Tool
 
-1. Right-click `launcher.ps1` and select **Run with PowerShell**.
-2. Open your browser to `http://localhost:8081`.
-3. Paste your Selenium Java code in the left panel.
-4. Click the ⚡ bolt button.
-5. Watch your Playwright code appear in the right panel!
+1. Open your terminal in the project directory.
+2. Run `npm install` to install dependencies.
+3. Start the server with `npm start`.
+4. Open your browser to `http://localhost:8081`.
+5. Paste your Selenium Java code in the left panel.
+6. Click the ⚡ bolt button.
+7. Watch your Playwright code appear in the right panel!
 
 ## 📂 Project Structure
 
 - `index.html`: Modern "Command Center" UI.
-- `tools/server.ps1`: Lightweight HTTP server handling UI requests.
-- `tools/main_converter.ps1`: The AI engine that orchestrates the conversion.
+- `server.js`: Node.js Express server handling UI requests and AI conversion.
 - `converted_playwright_test/`: The output folder where your new tests are generated.
 
 ---
