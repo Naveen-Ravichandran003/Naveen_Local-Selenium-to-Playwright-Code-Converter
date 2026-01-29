@@ -1,53 +1,71 @@
 # ⚡ Selenium to Playwright Converter
 
-An AI-powered automation migration tool that transforms legacy Selenium Java (TestNG) code into modern, idiomatic Playwright TypeScript.
+An AI-powered automation migration tool that transforms legacy Selenium Java (TestNG) code into modern, idiomatic Playwright TypeScript. 
+
+Built with a professional, secure-by-default architecture that ensures all code processing stays on your local machine.
 
 ## 🏗 Architecture
 
-The system operates as a local "Command Center" that bridges your legacy Selenium code with Playwright using a local LLM through Ollama.
+The system operates as a local "Command Center" that bridges legacy automation with the modern Playwright ecosystem using a local LLM (Ollama).
 
 ```mermaid
 graph TD
-    User([User Injects Code]) --> UI[Web UI - index.html]
-    UI --> Server[PowerShell Server - server.ps1]
-    Server --> Converter[Main Converter - main_converter.ps1]
-    Converter --> Ollama[Local LLM - Ollama llama3.2]
-    Ollama -- Returns TypeScript --> Converter
-    Converter -- Creates Project --> Workspace[converted_playwright_test/]
-    Workspace --> Playwright[Ready-to-Run Tests]
-    Server -- Updates UI --> UI
+    User["User / QA Engineer"] -->|Pastes Java Code| UI["Frontend (HTML/JS/CSS)"]
+    UI -->|REST API POST| Proxy["Node.js Express Server"]
+    Proxy -->|Sanitized Prompt| LLM["Ollama Local Engine"]
+    LLM -->|Generates TS| Proxy
+    Proxy -->|Returns Code| UI
+    UI -->|Displays Result| User
+
+    subgraph "Local Machine (Secure Zone)"
+    UI
+    Proxy
+    LLM
+    end
 ```
 
-## 🚀 Features
+## 🚀 Key Features
 
-- **Local-First**: No code leaves your machine. Everything runs locally via Ollama.
-- **Smart Mapping**: Automatically converts Driver-based logic to Playwright fixtures (`{ page }`).
-- **Auto-Wait**: Replaces fragile `Thread.sleep` or manual waits with Playwright's web-first assertions.
-- **Project Generator**: Automatically creates a structured Playwright environment (`playwright.config.ts`, `package.json`).
+- **Local-First Security**: No code leaves your machine. Your proprietary test logic is never sent to external clouds.
+- **Pure Web Stack**: Built using Node.js, HTML5, and CSS3 for a high-performance, lightweight experience.
+- **Smart Context Mapping**: Automatically translates Driver-based logic into Playwright Fixtures (`{ page }`).
+- **Web-First Assertions**: Replaces fragile `Thread.sleep` and manual waits with Playwright's auto-waiting mechanism.
+- **Automatic Project Scaffolding**: Automatically generates `playwright.config.ts`, `package.json`, and `tsconfig.json` for every conversion.
 
 ## 🛠️ Getting Started
 
 ### Prerequisites
 
-1. **Ollama**: Install from [ollama.com](https://ollama.com).
-2. **Model**: Run `ollama pull llama3.2:3b` in your terminal.
-3. **Node.js**: Required to run the converted tests.
+1.  **Ollama**: Install from [ollama.com](https://ollama.com).
+2.  **Model**: Pull the local AI model by running:
+    ```bash
+    ollama pull llama3.2:3b
+    ```
+3.  **Node.js**: Ensure you have Node.js (v18+) installed on your system.
 
-### Running the Tool
+### Installation & Run
 
-1. Open your terminal in the project directory.
-2. Run `npm install` to install dependencies.
-3. Start the server with `npm start`.
-4. Open your browser to `http://localhost:8081`.
-5. Paste your Selenium Java code in the left panel.
-6. Click the ⚡ bolt button.
-7. Watch your Playwright code appear in the right panel!
+1.  Clone the repository and navigate into it.
+2.  Install the server dependencies:
+    ```bash
+    npm install
+    ```
+3.  Start the local command center:
+    ```bash
+    npm start
+    ```
+4.  Open your browser to `http://localhost:8081`.
 
 ## 📂 Project Structure
 
-- `index.html`: Modern "Command Center" UI.
-- `server.js`: Node.js Express server handling UI requests and AI conversion.
-- `converted_playwright_test/`: The output folder where your new tests are generated.
+- `index.html`: Optimized "Command Center" UI with Monaco Editor integration.
+- `server.js`: The central Express.js hub managing AI requests and workspace generation.
+- `index.css`: Premium dark-themed UI system.
+- `converted_playwright_test/`: Auto-generated workspace for your new tests.
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
-*Created by Naveen Ravichandran - AI Testing Project*
+*Developed by Naveen Ravichandran - Specialized AI Testing Project*
