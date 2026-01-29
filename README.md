@@ -9,19 +9,24 @@ Built with a professional, secure-by-default architecture that ensures all code 
 The system operates as a local "Command Center" that bridges legacy automation with the modern Playwright ecosystem using a local LLM (Ollama).
 
 ```mermaid
-graph TD
-    User["User / QA Engineer"] -->|Pastes Java Code| UI["Frontend (HTML/JS/CSS)"]
-    UI -->|REST API POST| Proxy["Node.js Express Server"]
-    Proxy -->|Sanitized Prompt| LLM["Ollama Local Engine"]
-    LLM -->|Generates TS| Proxy
-    Proxy -->|Returns Code| UI
-    UI -->|Displays Result| User
+sequenceDiagram
+    autonumber
+    actor User as QA Engineer
+    participant UI as Command Center (Frontend)
+    participant Proxy as Node.js Server
+    participant Ollama as Local LLM (Ollama)
 
-    subgraph "Local Machine (Secure Zone)"
-    UI
-    Proxy
-    LLM
-    end
+    User->>UI: Paste Selenium Java Code
+    User->>UI: Click ⚡ Convert Button
+    UI->>UI: Start Loading Animation
+    UI->>Proxy: POST /api/convert (Source Code)
+    Proxy->>Proxy: Build Conversion Prompt
+    Proxy->>Ollama: Generate Code (llama3.2)
+    Ollama-->>Proxy: Converted TypeScript Code
+    Proxy->>Proxy: Generate Project Scaffolding
+    Proxy-->>UI: Return Response JSON
+    UI->>UI: Stop Animation & Render Code
+    UI->>User: Display Playwright Script
 ```
 
 ## 🚀 Key Features
