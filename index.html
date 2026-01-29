@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Command Center | Selenium to Playwright</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" data-name="vs/editor/editor.main"
+        href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/editor/editor.main.min.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1>⚡ Selenium → <span>Playwright</span> Converter</h1>
+        <p>AI-powered automation migration tool</p>
+    </header>
+
+    <!-- Workbench -->
+    <main class="workbench">
+        <!-- Input Panel -->
+        <section class="panel panel-input">
+            <div class="panel-header">Input (Selenium Java)</div>
+            <div class="editor-container" style="position: relative;">
+                <div id="selenium-placeholder" class="editor-placeholder">Paste your Selenium Java code here...</div>
+                <div id="selenium-editor" style="height: 100%;"></div>
+            </div>
+        </section>
+
+        <!-- Center Command Panel -->
+        <section class="panel panel-center">
+            <div class="arrow-icon">↓</div>
+            <button id="convert-btn" class="btn-convert-round" title="Convert Now">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="m13 2-2 10h9L7 22l2-10H1L13 2z" />
+                </svg>
+            </button>
+            <div class="status-text" id="command-status">Ready to convert</div>
+            <div class="arrow-icon">↓</div>
+        </section>
+
+        <!-- Output Panel -->
+        <section class="panel panel-output">
+            <div class="panel-header">Output (Playwright TS)</div>
+            <div class="editor-container" style="position: relative;">
+                <div class="copy-overlay">
+                    <button id="copy-btn" class="btn-action">Copy Code</button>
+                </div>
+                <div id="playwright-editor" style="height: 100%;"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Status Bar -->
+    <footer class="status-bar">
+        <div class="status-item">
+            <div id="ollama-dot" class="dot"></div>
+            <span>Ollama: <span id="ollama-status">Disconnected</span></span>
+        </div>
+        <div class="status-item">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                style="opacity: 0.6">
+                <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                </path>
+            </svg>
+            <span id="model-name">Searching...</span>
+        </div>
+        <div class="status-item" style="margin-left: auto;">
+            <button id="clear-btn" class="btn-action" style="background: transparent; border: none; padding: 0;">Clear
+                Workspace</button>
+        </div>
+    </footer>
+
+    <!-- Monaco Editor Loader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+    <script>
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' } });
+
+        let seleniumEditor, playwrightEditor;
+
+        require(['vs/editor/editor.main'], function () {
+            monaco.editor.defineTheme('command-center-theme', {
+                base: 'vs-dark',
+                inherit: true,
+                rules: [],
+                colors: {
+                    'editor.background': '#0B0F19',
+                    'editor.lineHighlightBackground': '#1F2937',
+                    'editorCursor.foreground': '#6366F1',
+                    'editor.selectionBackground': '#312E81',
+                    'editorIndentGuide.background': '#1F2937'
+                }
+            });
+
+            seleniumEditor = monaco.editor.create(document.getElementById('selenium-editor'), {
+                value: '',
+                language: 'java',
+                theme: 'command-center-theme',
+                fontSize: 14,
+                fontFamily: 'JetBrains Mono, monospace',
+                minimap: { enabled: false },
+                automaticLayout: true,
+                padding: { top: 20 },
+                lineNumbersMinChars: 3,
+                scrollBeyondLastLine: false
+            });
+
+            const seleniumPlaceholder = document.getElementById('selenium-placeholder');
+
+            function updatePlaceholder() {
+                const value = seleniumEditor.getValue();
+                if (value === "") {
+                    seleniumPlaceholder.style.display = "block";
+                } else {
+                    seleniumPlaceholder.style.display = "none";
+                }
+            }
+
+            seleniumEditor.onDidChangeModelContent(updatePlaceholder);
+            updatePlaceholder(); // Initial check
+
+            playwrightEditor = monaco.editor.create(document.getElementById('playwright-editor'), {
+                value: '',
+                language: 'typescript',
+                theme: 'command-center-theme',
+                fontSize: 14,
+                fontFamily: 'JetBrains Mono, monospace',
+                minimap: { enabled: false },
+                automaticLayout: true,
+                readOnly: true,
+                padding: { top: 20 },
+                lineNumbersMinChars: 3,
+                scrollBeyondLastLine: false
+            });
+        });
+
+        const convertBtn = document.getElementById('convert-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const commandStatus = document.getElementById('command-status');
+        const ollamaDot = document.getElementById('ollama-dot');
+        const ollamaStatusDisplay = document.getElementById('ollama-status');
+        const modelNameDisplay = document.getElementById('model-name');
+
+        // Status Check
+        async function checkStatus() {
+            try {
+                const response = await fetch('http://localhost:11434/api/tags');
+                if (response.ok) {
+                    const data = await response.json();
+                    ollamaDot.className = 'dot online';
+                    ollamaStatusDisplay.innerText = 'Connected';
+                    const models = data.models.map(m => m.name);
+                    if (models.includes('llama3.2:3b')) modelNameDisplay.innerText = 'llama3.2:3b';
+                    else if (models.includes('llama3.2:1b')) modelNameDisplay.innerText = 'llama3.2:1b';
+                    else modelNameDisplay.innerText = models[0] || 'Unknown';
+                } else {
+                    throw new Error();
+                }
+            } catch (e) {
+                ollamaDot.className = 'dot';
+                ollamaStatusDisplay.innerText = 'Disconnected';
+                modelNameDisplay.innerText = 'Searching...';
+            }
+        }
+
+        // Conversion Logic
+        convertBtn.addEventListener('click', async () => {
+            const source = seleniumEditor.getValue().trim();
+            if (!source) return;
+
+            convertBtn.disabled = true;
+            convertBtn.classList.add('loading');
+            commandStatus.innerText = 'Converting...';
+            playwrightEditor.setValue('// 🚀 Initializing AI Core...\n// Analyzing Selenium patterns...');
+
+            try {
+                const response = await fetch('/api/convert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        source_code: source,
+                        target_lang: 'typescript'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    playwrightEditor.setValue(data.converted_code);
+                    commandStatus.innerText = 'Conversion Complete';
+                    setTimeout(() => commandStatus.innerText = 'Ready to convert', 3000);
+                } else {
+                    playwrightEditor.setValue('// Error: ' + data.msg);
+                    commandStatus.innerText = 'Error Observed';
+                }
+            } catch (error) {
+                playwrightEditor.setValue('// Connection Error: ' + error.message);
+                commandStatus.innerText = 'Server Error';
+            } finally {
+                convertBtn.disabled = false;
+                convertBtn.classList.remove('loading');
+            }
+        });
+
+        clearBtn.addEventListener('click', () => {
+            seleniumEditor.setValue('');
+            playwrightEditor.setValue('');
+            commandStatus.innerText = 'Ready to convert';
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const content = playwrightEditor.getValue();
+            if (!content) return;
+            navigator.clipboard.writeText(content);
+            const originalText = copyBtn.innerText;
+            copyBtn.innerText = 'Copied!';
+            setTimeout(() => copyBtn.innerText = originalText, 2000);
+        });
+
+        setInterval(checkStatus, 5000);
+        checkStatus();
+    </script>
+</body>
+
+</html>

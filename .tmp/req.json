@@ -1,0 +1,8 @@
+{
+    "options":  {
+                    "temperature":  0
+                },
+    "prompt":  "You are an expert QA Automation Engineer.\r\nTask: Convert the provided Selenium Java code to Playwright typescript.\r\nRules:\r\n1. ONLY output the code. No explanations, no introductory text, no conversational filler.\r\n2. Use async/await.\r\n3. Use page.locator() and standard Playwright assertions.\r\n4. If the input is not valid Java code, just output a comment: // Error: Input is not valid Selenium Java code.\r\n\r\nSource Code:\r\nimport org.openqa.selenium.By;\r\nimport org.openqa.selenium.WebDriver;\r\nimport org.openqa.selenium.WebElement;\r\nimport org.openqa.selenium.chrome.ChromeDriver;\r\nimport org.testng.annotations.Test;\r\n\r\npublic class SampleTest {\r\n    @Test\r\n    public void testGoogleSearch() {\r\n        WebDriver driver = new ChromeDriver();\r\n        driver.get(\"https://www.google.com\");\r\n        WebElement searchBox = driver.findElement(By.name(\"q\"));\r\n        searchBox.sendKeys(\"Playwright\");\r\n        searchBox.submit();\r\n        driver.quit();\r\n    }\r\n}\r\n",
+    "model":  "llama3.2:3b",
+    "stream":  false
+}
