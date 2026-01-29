@@ -1,0 +1,11 @@
+node_modules/
+package-lock.json
+.tmp/
+.gemini/
+converted_playwright_test/node_modules/
+converted_playwright_test/package-lock.json
+converted_playwright_test/test-results/
+converted_playwright_test/playwright-report/
+converted_playwright_test/blob-report/
+converted_playwright_test/playwright/.cache/
+!run-server.bat

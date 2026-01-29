@@ -5,7 +5,7 @@ const fs = require('fs-extra');
 const axios = require('axios');
 
 const app = express();
-const PORT = 8081;
+const PORT = 8082;
 
 app.use(cors());
 app.use(express.json());
@@ -79,24 +79,43 @@ export default defineConfig({
     try {
         const tagsRes = await axios.get('http://localhost:11434/api/tags');
         const models = tagsRes.data.models.map(m => m.name);
-        if (models.includes('llama3.2:3b')) model = 'llama3.2:3b';
-        else if (models.includes('llama3.2:1b')) model = 'llama3.2:1b';
+        if (models.includes('llama3.2:1b')) model = 'llama3.2:1b';
+        else if (models.includes('llama3.2:3b')) model = 'llama3.2:3b';
+        else if (models.includes('tinyllama:latest')) model = 'tinyllama:latest';
     } catch (e) {
         console.warn('Ollama not reachable, using default model mapping');
     }
 
-    const prompt = `You are a Senior Playwright Automation Engineer. 
-Task: Convert Selenium Java to Clean, Idiomatic Playwright ${targetLang}.
+    const prompt = `### Role
+You are a Senior Playwright Automation Engineer.
+### Task
+Convert the provided Selenium Java (TestNG) code into modern, idiomatic Playwright TypeScript.
 
-STRICT CONVERSION RULES:
-1. ALWAYS use the ({ page }: { page: Page }) fixture.
-2. Ensure correct imports: import { test, expect, Page } from '@playwright/test';
-3. NEVER use chromium.launch() or manual driver setup.
-4. Navigation: page.goto() must happen first.
-5. Use locator.fill(), locator.click(), locator.press('Enter').
-6. Assertions: Use await expect(page).toHaveTitle(), etc.
+### STRICT RULES:
+1. Use Playwright Test runner style: test('description', async ({ page }) => { ... });
+2. Import correctly: import { test, expect } from '@playwright/test';
+3. Use page.goto() for navigation.
+4. Use page.locator('selector') and perform actions: .fill(), .click().
+5. Use web-first assertions: await expect(page).toHaveTitle('...'), await expect(locator).toBeVisible().
+6. NO manual browser launching. NO decorators like @Test.
+7. Wrap tests in test.describe if multiple tests are found.
 
-Source Code to Convert:
+### Example Conversion:
+#### Input (Selenium):
+@Test
+public void loginTest() {
+    driver.get("url");
+    driver.findElement(By.id("u")).sendKeys("user");
+    Assert.assertEquals(driver.getTitle(), "Home");
+}
+#### Output (Playwright):
+test('login test', async ({ page }) => {
+    await page.goto('url');
+    await page.locator('#u').fill('user');
+    await expect(page, "Should have correct title").toHaveTitle('Home');
+});
+
+### Code to Convert:
 ${sourceCode}`;
 
     const generateRes = await axios.post('http://localhost:11434/api/generate', {

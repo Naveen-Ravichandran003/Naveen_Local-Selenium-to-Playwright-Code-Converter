@@ -59,7 +59,7 @@ sequenceDiagram
     ```bash
     npm start
     ```
-4.  Open your browser to `http://localhost:8081`.
+4.  Open your browser to `http://localhost:8082`.
 
 ## 📂 Project Structure
 
