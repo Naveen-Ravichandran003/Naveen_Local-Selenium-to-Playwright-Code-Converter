@@ -1,0 +1,10 @@
+# Exclude batch files and documentation from language statistics
+*.bat linguist-vendored
+*.md linguist-documentation
+screenshots/* linguist-vendored
+
+# Mark primary languages
+*.js linguist-language=JavaScript
+*.ts linguist-language=TypeScript
+*.html linguist-language=HTML
+*.css linguist-language=CSS
