@@ -61,6 +61,93 @@ sequenceDiagram
     ```
 4.  Open your browser to `http://localhost:8082`.
 
+## 📸 Screenshots
+
+### Ready to Convert
+![Ready to Convert](screenshots/1-ready-to-convert.png)
+
+### Converting in Progress
+![Converting](screenshots/2-converting.png)
+
+### Conversion Complete
+![Conversion Complete](screenshots/3-conversion-complete.png)
+
+## 💡 Example Conversion
+
+### Input (Selenium Java + TestNG)
+```java
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.*;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+public class LoginTest {
+
+    WebDriver driver;
+
+    @BeforeClass
+    public void setup() {
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+    }
+
+    @Test
+    public void validLoginTest() {
+        // Open login page
+        driver.get("https://example.com/login");
+
+        // Locate elements
+        WebElement username = driver.findElement(By.id("username"));
+        WebElement password = driver.findElement(By.id("password"));
+        WebElement loginBtn = driver.findElement(By.id("loginBtn"));
+
+        // Perform login
+        username.sendKeys("testuser");
+        password.sendKeys("password123");
+        loginBtn.click();
+
+        // Simple verification: check page title or URL
+        String expectedTitle = "Dashboard";
+        String actualTitle = driver.getTitle();
+
+        Assert.assertEquals(actualTitle, expectedTitle, "Login Failed!");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+}
+```
+
+### Output (Playwright TypeScript)
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('login test', async ({ page }) => {
+  await page.goto('https://example.com/login');
+  const usernameInput = page.locator('#username');
+  const passwordInput = page.locator('#password');
+  const loginButton = page.locator('#loginBtn');
+
+  await usernameInput.fill('testuser');
+  await passwordInput.fill('password123');
+  await loginButton.click();
+
+  const expectedTitle = 'Dashboard';
+  const actualTitle = await page.title();
+  expect(actualTitle, "Login Failed!").toBe(expectedTitle);
+});
+```
+
+
 ## 📂 Project Structure
 
 - `index.html`: Optimized "Command Center" UI with Monaco Editor integration.
