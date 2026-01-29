@@ -63,14 +63,23 @@ sequenceDiagram
 
 ## 📸 Screenshots
 
-### Ready to Convert
-![Ready to Convert](screenshots/1-ready-to-convert.png)
+<table>
+  <tr>
+    <th align="center">Ready to Convert</th>
+    <th align="center">Converting in Progress</th>
+  </tr>
+  <tr>
+    <td><img src="screenshots/1-ready-to-convert.png" alt="Ready to Convert" /></td>
+    <td><img src="screenshots/2-converting.png" alt="Converting" /></td>
+  </tr>
+  <tr>
+    <th align="center" colspan="2">Conversion Complete</th>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="screenshots/3-conversion-complete.png" alt="Conversion Complete" /></td>
+  </tr>
+</table>
 
-### Converting in Progress
-![Converting](screenshots/2-converting.png)
-
-### Conversion Complete
-![Conversion Complete](screenshots/3-conversion-complete.png)
 
 ## 💡 Example Conversion
 
